@@ -61,25 +61,43 @@ def readdata(plik):
                 data.append(helparr)
         print(int(maxi))
         print(int(mini))
-    return h,w,dif,data,int(mini),int(maxi)
+    return h,w,int(dif),data,int(mini),int(maxi)
 
 #funkcja zamieniajaca tablice z danymi
 #na tablice z trojkami RGB
-def data2rgbtable(table,mini,maxi):
+def data2rgbtable(table,mini,maxi,dif):
+    s = np.array([10000,50,10000])#pozycja slonca
     rgbtable = []
     w = 0.05
     roznica = maxi - mini
-    for i in range(0, 500):
+    for i in range(1, 500):
         pomtable = []
-        for j in range(0, 500):
+        for j in range(1, 500):
+            pcurr = np.array([j*dif,float(table[i][j]),i*dif])
+            p2 = np.array([(j-1)*dif,float(table[i][j-1]),i*dif])
+            p3 = np.array([(j-1)*dif,float(table[i-1][j-1]),(i-1)*dif])
+            normal = np.cross(pcurr-p2,pcurr-p3)#wektor normalny do trojkata utworzonego z 3 punktow na mapie
+            normal_unit = normal/np.linalg.norm(normal)
+            sun = s-pcurr
+            sun_unit = sun/np.linalg.norm(sun)
+            pom = np.arccos(np.clip(np.dot(normal_unit, sun_unit), -1.0, 1.0))
+            angle =  np.degrees(pom)
+            #angle = (180/3.14)*np.arccos(np.clip(np.dot(normal,(s-pcurr))/np.linalg.norm(normal)/np.linalg.norm((s-pcurr)), -1, 1))
+            v = 91 - angle
+            v = v*10-9
+            #print(v)
+            if v > 1:
+                v = 1
+            if v < 0:
+                v = v+1
             r = math.floor(float(table[i][j]))
             #kolor podstawowy
-            rgb = hsv2rgb(120-(((r-40)/roznica)*120),1,0.9)
-            #rozjasnianie albo zciemnianie
-            if float(table[i][j-1]) > r:
-                rgb = hsv2rgb(120-(((r-40)/roznica)*120),1,1)
-            else:
-                rgb = hsv2rgb(120-(((r-40)/roznica)*120),1,0.85)
+            rgb = hsv2rgb(120-(((r-40)/roznica)*120),1,v)
+            #rozjasnianie albo zciemnianie1
+            #if float(table[i][j-1]) > r:
+            #    rgb = hsv2rgb(120-(((r-40)/roznica)*120),1,1)
+            #else:
+            #    rgb = hsv2rgb(120-(((r-40)/roznica)*120),1,0.85)
             pomtable.append(rgb)
         rgbtable.append(pomtable)
     return rgbtable
@@ -89,7 +107,7 @@ def data2rgbtable(table,mini,maxi):
 
 def main():
     h, w, dif, data, mini, maxi = readdata('big.dem') #height, width, diff and data
-    img = data2rgbtable(data,mini,maxi)
+    img = data2rgbtable(data,mini,maxi,dif)
 
     fig = plt.figure()
     plt.imshow(img)
