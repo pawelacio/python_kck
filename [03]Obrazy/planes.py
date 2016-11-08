@@ -11,20 +11,20 @@ def read_images(images):
     return img_tab
 
 def imagination(image):
-    median =  filters.sobel(image)
+    edges =  filters.sobel(image)
     #edges2 = feature.canny(image, sigma=3)
-    for i in range(len(median)):
-        for j in range(len(median[0])):
-            if median[i][j] > 0.15:
-                median[i][j] = 1
+    for i in range(len(edges)):
+        for j in range(len(edges[0])):
+            if edges[i][j] > 0.15:
+                edges[i][j] = 1
             else:
-                median[i][j] = 0
-    # median =  morphology.erosion(median)
-    # median =  morphology.dilation(median)
-    return median
+                edges[i][j] = 0
+    # edges =  morphology.erosion(edges)
+    # edges =  morphology.dilation(edges)
+    return edges
 
 def main():
-    planes = ["samolot08.jpg","samolot01.jpg","samolot07.jpg","samolot10.jpg","samolot08.jpg","samolot09.jpg"]
+    planes = ["samolot01.jpg","samolot07.jpg","samolot08.jpg","samolot09.jpg","samolot10.jpg","samolot11.jpg"]
     images = read_images(planes)
     fig = plt.figure(facecolor='black')
 
